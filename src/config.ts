@@ -1,0 +1,1 @@
+export const outputPath = "D:\\Videos\\Compress File";

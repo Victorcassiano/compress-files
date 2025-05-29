@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    // Environment setup & latest features
+    "rootDir": "./src",
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "Preserve",
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": true,
+    "noEmit": false,
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+
+    //
+    "outDir": "./dist/",  
+
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "bin", "**/__mocks__*", "**/*.spec.**", "test", "assets"]
+}
