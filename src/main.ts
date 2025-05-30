@@ -1,24 +1,24 @@
-import { join } from 'path';
-import cliProgress from 'cli-progress';
-import { outputPath } from './config';
+import { join, basename } from 'path';
 import { ensureOutputDirectory, preserveTimestamps } from './file-utils';
-import { getInputPath, chooseFiles } from './prompts';
-import { getVideoDuration, compressVideo } from './ffmpeg-utils';
+import { getInputPath, chooseFiles, chooseFileType } from './prompts';
+import { getVideoDuration, getOutputPath } from './ffmpeg-utils';
+import { createProgressBar } from './progress-bar';
+import { getCompressor } from './compressors';
 
 
 (async () => {
+  const formatSelect = await chooseFileType()
+  const inputPath = await getInputPath();
+  const folderName = basename(inputPath);
+  const outputPath = getOutputPath(folderName);
+
   ensureOutputDirectory(outputPath);
 
-  const inputPath = await getInputPath();
-  const files = await chooseFiles(inputPath);
+  const files = await chooseFiles(inputPath, formatSelect);
 
   console.clear();
 
-  const mainProgressBar = new cliProgress.SingleBar({
-    fps: 1,
-    hideCursor: true,
-    format: 'Overall Progress |{bar}| {value}/{total} files',
-  }, cliProgress.Presets.shades_classic);
+  const mainProgressBar = createProgressBar({ total: files.length });
 
   const showMainProgressBar = files.length > 1;
   if (showMainProgressBar) mainProgressBar.start(files.length, 0);
@@ -36,16 +36,16 @@ import { getVideoDuration, compressVideo } from './ffmpeg-utils';
 
     const duration = await getVideoDuration(src);
 
-    const fileProgressBar = new cliProgress.SingleBar({
+    const fileProgressBar = createProgressBar({
+      title: name,
+      total: duration,
       fps: 5,
-      clearOnComplete: true,
-      hideCursor: true,
-      format: '|{bar}| {percentage}% | ETA: {eta}s',
-    }, cliProgress.Presets.shades_classic);
+    });;
 
     fileProgressBar.start(duration, 0);
 
-    await compressVideo(src, dest, duration, current => {
+    const compressor = getCompressor(formatSelect);
+    await compressor(src, dest, duration, current => {
       fileProgressBar.update(Math.min(current, duration));
     });
 

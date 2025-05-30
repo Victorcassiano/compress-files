@@ -11,8 +11,14 @@ export async function getInputPath(): Promise<string> {
   return path.trim();
 }
 
-export async function chooseFiles(basePath: string): Promise<string[]> {
-  const items = readdirSync(basePath);
+export async function chooseFiles(basePath: string, fileType: string): Promise<string[]> {
+  const items = readdirSync(basePath)
+    .filter(file => file.toLowerCase().endsWith(`.${fileType}`));
+
+  if (items.length === 0) {
+    console.log(`Nenhum arquivo .${fileType} encontrado no diretório.`);
+    process.exit(1)
+  }
 
   const { mode } = await prompts({
     type: 'select',
@@ -34,4 +40,18 @@ export async function chooseFiles(basePath: string): Promise<string[]> {
   });
 
   return [file];
+}
+
+export async function chooseFileType(): Promise<string> {
+  const { fileType } = await prompts({
+    type: 'select',
+    name: 'fileType',
+    message: 'Selecione o tipo de arquivo para compressão:',
+    choices: [
+      { title: 'Vídeo (MP4)', value: 'mp4' },
+      { title: 'Áudio (MP3)', value: 'mp3' },
+    ],
+  });
+
+  return fileType;
 }
